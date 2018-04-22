@@ -62,7 +62,7 @@ Do NOT write generator functions that try to do more than one of these at once
 [softwaredoug's asncio.md gist](https://gist.github.com/softwaredoug/86fa2abd60ed203b71de)
 
 1. Provides *event loop*
-  * An event loop basically says "when event A happens, react with function B"
+    * An event loop basically says "when event A happens, react with function B"
 
 ## Resources
 [How the heck does async/await work in Python 3.5?](https://snarky.ca/how-the-heck-does-async-await-work-in-python-3-5/)
