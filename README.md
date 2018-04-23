@@ -1,6 +1,4 @@
-# Notes
-
-## Coroutines
+# Coroutines
 [A Curious Course on Coroutines and Concurrency](http://dabeaz.com/coroutines/)
 
 Coroutines are similar to generators with a few differences. The main differences are:
@@ -23,19 +21,19 @@ Calling a coroutine does not start its code running - the coroutine object retur
 
 Coroutines (and tasks) can only run when the event loop is running.
 
-## asyncio
+# asyncio
 [Python 3 – An Intro to asyncio](https://www.blog.pythonlibrary.org/2016/07/26/python-3-an-intro-to-asyncio/)
 
 [softwaredoug's asncio.md gist](https://gist.github.com/softwaredoug/86fa2abd60ed203b71de)
 
-### Event Loop
+## Event Loop
 The event loop is the central execution device provided by asyncio. It provides multiple facilities, including:
 * Registering, executing and cancelling delayed calls (timeouts)
 * Creating client and server transports for various kinds of communication
 * Launching subprocesses and the associated transports for communication with an external program
 * Delegating costly function calls to a pool of threads
 
-#### Methods
+### Methods
 * [run_forever](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.run_forever)
 * [run_until_complete](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.run_until_complete)
 * [is_running](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.is_running)
@@ -45,7 +43,7 @@ The event loop is the central execution device provided by asyncio. It provides 
 * [shutdown_asyncgens](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.shutdown_asyncgens)
 
 
-### Future
+## Future
 [asyncio.Future](https://docs.python.org/3/library/asyncio-task.html#asyncio.Future)
 
 From [wikipedia](https://en.wikipedia.org/wiki/Futures_and_promises) article: "... a future is a read-only placeholder view of a variable, while a promise is a writable, single assignment container which sets the value of the future ..."
@@ -72,7 +70,7 @@ finally:
     loop.close()
 ```
 
-### Task
+## Task
 [asynctio.Task](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task)
 
 A task is responsible for executing a coroutine object in an event loop. If the wrapped coroutine yields from a future, the task suspends the execution of the wrapped coroutine and waits for the completion of the future. When the future is done, the execution of the wrapped coroutine restarts with the result or the exception of the future.
@@ -112,7 +110,7 @@ Task C: Compute factorial(4)...
 Task C: factorial(4) = 24
 ```
 
-### Functions
+## Functions
 A selection of asyncio task functions, full list [here](https://docs.python.org/3/library/asyncio-task.html#task-functions).
 
 * [asyncio.ensure_future](https://docs.python.org/3/library/asyncio-task.html#asyncio.ensure_future)
@@ -125,7 +123,7 @@ A selection of asyncio task functions, full list [here](https://docs.python.org/
 * [asyncio.wait](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait)
 * [asyncio.wait_for](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait_for)
 
-
+## Various thoughts
 ### yield vs. yield from
 [stack overflow link](https://stackoverflow.com/questions/9708902/in-practice-what-are-the-main-uses-for-the-new-yield-from-syntax-in-python-3)
 
@@ -228,7 +226,21 @@ See also:
 * [__aenter__](https://docs.python.org/3/reference/datamodel.html#object.__aenter__)
 * [__aexit__](https://docs.python.org/3/reference/datamodel.html#object.__aexit__)
 
-## Summary
+# Development
+From [documentation](https://docs.python.org/3/library/asyncio-dev.html): to enable all debug checks for an application:
+
+* Enable the asyncio debug mode globally by setting the environment variable `PYTHONASYNCIODEBUG` to 1, or by calling `AbstractEventLoop.set_debug()`
+* Set the log level of the asyncio logger to `logging.DEBUG`. For example, call `logging.basicConfig(level=logging.DEBUG)` at startup
+* Configure the warnings module to display `ResourceWarning` warnings. For example, use the `-Wdefault` command line option of Python to display them
+
+Examples debug checks:
+* Log coroutines defined but never "yielded from"
+* `call_soon()` and `call_at()` methods raise an exception if they are called from the wrong thread
+* Log the execution time of the selector
+* Log callbacks taking more than 100 ms to be executed. The `AbstractEventLoop.slow_callback_duration` attribute is the minimum duration in seconds of "slow" callbacks
+* `ResourceWarning` warnings are emitted when transports and event loops are not closed explicitly
+
+# Summary
 If you are going to use coroutines, it is critically important to not mix programming paradigms together.
 
 There are three main uses of yield:
