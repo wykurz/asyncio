@@ -23,6 +23,109 @@ Calling a coroutine does not start its code running - the coroutine object retur
 
 Coroutines (and tasks) can only run when the event loop is running.
 
+## asyncio
+[Python 3 – An Intro to asyncio](https://www.blog.pythonlibrary.org/2016/07/26/python-3-an-intro-to-asyncio/)
+
+[softwaredoug's asncio.md gist](https://gist.github.com/softwaredoug/86fa2abd60ed203b71de)
+
+### Event Loop
+The event loop is the central execution device provided by asyncio. It provides multiple facilities, including:
+* Registering, executing and cancelling delayed calls (timeouts)
+* Creating client and server transports for various kinds of communication
+* Launching subprocesses and the associated transports for communication with an external program
+* Delegating costly function calls to a pool of threads
+
+#### Methods
+* [run_forever](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.run_forever)
+* [run_until_complete](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.run_until_complete)
+* [is_running](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.is_running)
+* [stop](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.stop)
+* [is_closed](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.is_closed)
+* [close](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.close)
+* [shutdown_asyncgens](https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.shutdown_asyncgens)
+
+
+### Future
+[asyncio.Future](https://docs.python.org/3/library/asyncio-task.html#asyncio.Future)
+
+From [wikipedia](https://en.wikipedia.org/wiki/Futures_and_promises) article: "... a future is a read-only placeholder view of a variable, while a promise is a writable, single assignment container which sets the value of the future ..."
+
+Futures can be used to chain result of a coroutines with callbacks:
+```
+import asyncio
+
+async def slow_operation(future):
+    await asyncio.sleep(1)
+    future.set_result('Future is done!')
+
+def got_result(future):
+    print(future.result())
+    loop.stop()
+
+loop = asyncio.get_event_loop()
+future = asyncio.Future()
+asyncio.ensure_future(slow_operation(future))
+future.add_done_callback(got_result)
+try:
+    loop.run_forever()
+finally:
+    loop.close()
+```
+
+### Task
+[asynctio.Task](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task)
+
+A task is responsible for executing a coroutine object in an event loop. If the wrapped coroutine yields from a future, the task suspends the execution of the wrapped coroutine and waits for the completion of the future. When the future is done, the execution of the wrapped coroutine restarts with the result or the exception of the future.
+
+Don't directly create Task instances: use the `ensure_future()` function or the `AbstractEventLoop.create_task()` method.
+
+```
+import asyncio
+
+async def factorial(name, number):
+    f = 1
+    for i in range(2, number+1):
+        print("Task %s: Compute factorial(%s)..." % (name, i))
+        await asyncio.sleep(1)
+        f *= i
+    print("Task %s: factorial(%s) = %s" % (name, number, f))
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(asyncio.gather(
+    factorial("A", 2),
+    factorial("B", 3),
+    factorial("C", 4),
+))
+loop.close()
+```
+
+Output:
+```
+Task A: Compute factorial(2)...
+Task B: Compute factorial(2)...
+Task C: Compute factorial(2)...
+Task A: factorial(2) = 2
+Task B: Compute factorial(3)...
+Task C: Compute factorial(3)...
+Task B: factorial(3) = 6
+Task C: Compute factorial(4)...
+Task C: factorial(4) = 24
+```
+
+### Functions
+A selection of asyncio task functions, full list [here](https://docs.python.org/3/library/asyncio-task.html#task-functions).
+
+* [asyncio.ensure_future](https://docs.python.org/3/library/asyncio-task.html#asyncio.ensure_future)
+* [asynctio.gather](https://docs.python.org/3/library/asyncio-task.html#asyncio.gather)
+* [asyncio.iscoroutine](https://docs.python.org/3/library/asyncio-task.html#asyncio.iscoroutine)
+* [asyncio.iscoroutinefunction](https://docs.python.org/3/library/asyncio-task.html#asyncio.iscoroutinefunction)
+* [asyncio.run_coroutine_threadsafe](https://docs.python.org/3/library/asyncio-task.html#asyncio.run_coroutine_threadsafe)
+* [asyncio.sleep](https://docs.python.org/3/library/asyncio-task.html#asyncio.sleep)
+* [asyncio.shield](https://docs.python.org/3/library/asyncio-task.html#asyncio.shield)
+* [asyncio.wait](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait)
+* [asyncio.wait_for](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait_for)
+
+
 ### yield vs. yield from
 [stack overflow link](https://stackoverflow.com/questions/9708902/in-practice-what-are-the-main-uses-for-the-new-yield-from-syntax-in-python-3)
 
@@ -125,7 +228,7 @@ See also:
 * [__aenter__](https://docs.python.org/3/reference/datamodel.html#object.__aenter__)
 * [__aexit__](https://docs.python.org/3/reference/datamodel.html#object.__aexit__)
 
-### Summary
+## Summary
 If you are going to use coroutines, it is critically important to not mix programming paradigms together.
 
 There are three main uses of yield:
@@ -135,108 +238,6 @@ There are three main uses of yield:
 
 Do NOT write generator functions that try to do more than one of these at once
 
-## asyncio
-[Python 3 – An Intro to asyncio](https://www.blog.pythonlibrary.org/2016/07/26/python-3-an-intro-to-asyncio/)
-
-[softwaredoug's asncio.md gist](https://gist.github.com/softwaredoug/86fa2abd60ed203b71de)
-
-### Event Loop
-The event loop is the central execution device provided by asyncio. It provides multiple facilities, including:
-* Registering, executing and cancelling delayed calls (timeouts)
-* Creating client and server transports for various kinds of communication
-* Launching subprocesses and the associated transports for communication with an external program
-* Delegating costly function calls to a pool of threads
-
-#### Methods
-* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.run_forever
-* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.run_until_complete
-* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.is_running
-* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.stop
-* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.is_closed
-* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.close
-* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.shutdown_asyncgens
-
-
-### Future
-[asyncio.Future](https://docs.python.org/3/library/asyncio-task.html#asyncio.Future)
-
-From [wikipedia](https://en.wikipedia.org/wiki/Futures_and_promises) article: "... a future is a read-only placeholder view of a variable, while a promise is a writable, single assignment container which sets the value of the future ..."
-
-Futures can be used to chain result of a coroutines with callbacks:
-```
-import asyncio
-
-async def slow_operation(future):
-    await asyncio.sleep(1)
-    future.set_result('Future is done!')
-
-def got_result(future):
-    print(future.result())
-    loop.stop()
-
-loop = asyncio.get_event_loop()
-future = asyncio.Future()
-asyncio.ensure_future(slow_operation(future))
-future.add_done_callback(got_result)
-try:
-    loop.run_forever()
-finally:
-    loop.close()
-```
-
-### Task
-[asynctio.Task](https://docs.python.org/3/library/asyncio-task.html#asyncio.Task)
-
-A task is responsible for executing a coroutine object in an event loop. If the wrapped coroutine yields from a future, the task suspends the execution of the wrapped coroutine and waits for the completion of the future. When the future is done, the execution of the wrapped coroutine restarts with the result or the exception of the future.
-
-Don't directly create Task instances: use the `ensure_future()` function or the `AbstractEventLoop.create_task()` method.
-
-```
-import asyncio
-
-async def factorial(name, number):
-    f = 1
-    for i in range(2, number+1):
-        print("Task %s: Compute factorial(%s)..." % (name, i))
-        await asyncio.sleep(1)
-        f *= i
-    print("Task %s: factorial(%s) = %s" % (name, number, f))
-
-loop = asyncio.get_event_loop()
-loop.run_until_complete(asyncio.gather(
-    factorial("A", 2),
-    factorial("B", 3),
-    factorial("C", 4),
-))
-loop.close()
-```
-
-Output:
-```
-Task A: Compute factorial(2)...
-Task B: Compute factorial(2)...
-Task C: Compute factorial(2)...
-Task A: factorial(2) = 2
-Task B: Compute factorial(3)...
-Task C: Compute factorial(3)...
-Task B: factorial(3) = 6
-Task C: Compute factorial(4)...
-Task C: factorial(4) = 24
-```
-
-### Functions
-A selection of asyncio task functions, full list [here](https://docs.python.org/3/library/asyncio-task.html#task-functions).
-
-* [asyncio.ensure_future](https://docs.python.org/3/library/asyncio-task.html#asyncio.ensure_future)
-* [asynctio.gather](https://docs.python.org/3/library/asyncio-task.html#asyncio.gather)
-* [asyncio.iscoroutine](https://docs.python.org/3/library/asyncio-task.html#asyncio.iscoroutine)
-* [asyncio.iscoroutinefunction](https://docs.python.org/3/library/asyncio-task.html#asyncio.iscoroutinefunction)
-* [asyncio.run_coroutine_threadsafe](https://docs.python.org/3/library/asyncio-task.html#asyncio.run_coroutine_threadsafe)
-* [asyncio.sleep](https://docs.python.org/3/library/asyncio-task.html#asyncio.sleep)
-* [asyncio.shield](https://docs.python.org/3/library/asyncio-task.html#asyncio.shield)
-* [asyncio.wait](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait)
-* [asyncio.wait_for](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait_for)
-
-## Resources
-[Python 3.6 Glossary](https://docs.python.org/3/glossary.html)
-[How the heck does async/await work in Python 3.5?](https://snarky.ca/how-the-heck-does-async-await-work-in-python-3-5/)
+# Resources
+* [Python 3.6 Glossary](https://docs.python.org/3/glossary.html)
+* [How the heck does async/await work in Python 3.5?](https://snarky.ca/how-the-heck-does-async-await-work-in-python-3-5/)
