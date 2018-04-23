@@ -53,3 +53,23 @@ for f in [legacy_coroutine, async_coroutine]:
 #   - calling next on yield_generator: <async_generator object async_coroutine at 0x7fd5a7901ba8>
 #   - calling yield_from_generator: <generator object yield_from_generator at 0x7fd5a7435200>
 #   - calling await_coroutine_await: <coroutine object await_coroutine_await at 0x7fd5a7435200>
+
+async def foo():
+    asyncio.Task.current_task().print_stack()
+    return 42
+
+async def bar():
+    return await foo()
+
+async def baz():
+    return await bar()
+
+loop = asyncio.get_event_loop()
+task = asyncio.ensure_future(baz())
+task.add_done_callback(lambda _res: loop.stop())
+try:
+    loop.run_forever()
+finally:
+    loop.close()
+
+print('Done!')

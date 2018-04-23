@@ -147,5 +147,18 @@ Task C: Compute factorial(4)...
 Task C: factorial(4) = 24
 ```
 
+### Functions
+A selection of asyncio task functions, full list [here](https://docs.python.org/3/library/asyncio-task.html#task-functions).
+
+* [asyncio.ensure_future](https://docs.python.org/3/library/asyncio-task.html#asyncio.ensure_future)
+* [asynctio.gather](https://docs.python.org/3/library/asyncio-task.html#asyncio.gather)
+* [asyncio.iscoroutine](https://docs.python.org/3/library/asyncio-task.html#asyncio.iscoroutine)
+* [asyncio.iscoroutinefunction](https://docs.python.org/3/library/asyncio-task.html#asyncio.iscoroutinefunction)
+* [asyncio.run_coroutine_threadsafe](https://docs.python.org/3/library/asyncio-task.html#asyncio.run_coroutine_threadsafe)
+* [asyncio.sleep](https://docs.python.org/3/library/asyncio-task.html#asyncio.sleep)
+* [asyncio.shield](https://docs.python.org/3/library/asyncio-task.html#asyncio.shield)
+* [asyncio.wait](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait)
+* [asyncio.wait_for](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait_for)
+
 ## Resources
 [How the heck does async/await work in Python 3.5?](https://snarky.ca/how-the-heck-does-async-await-work-in-python-3-5/)
