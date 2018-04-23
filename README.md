@@ -62,6 +62,69 @@ def foo():
 
 Main difference is native coroutine objects do not implement `__iter__` and  `__next__` methods. Therefore, they cannot be iterated over or passed to `iter()`, `list()`, `tuple()` and other built-ins. They also cannot be used in a `for..in` loop.
 
+### asynchronous generator
+From [documeentation](https://docs.python.org/3/glossary.html#term-asynchronous-generator): A function which returns an asynchronous generator iterator. It looks like a coroutine function defined with async def except that it contains yield expressions for producing a series of values usable in an async for loop.
+
+### async for
+From [documentation](https://docs.python.org/3/reference/compound_stmts.html#async-for): the async for statement allows convenient iteration over asynchronous iterators.
+
+The following code:
+```
+async for TARGET in ITER:
+    BLOCK
+else:
+    BLOCK2
+```
+
+Is semantically equivalent to:
+```
+iter = (ITER)
+iter = type(iter).__aiter__(iter)
+running = True
+while running:
+    try:
+        TARGET = await type(iter).__anext__(iter)
+    except StopAsyncIteration:
+        running = False
+    else:
+        BLOCK
+else:
+    BLOCK2
+```
+
+See also:
+* [__aiter__](https://docs.python.org/3/reference/datamodel.html#object.__aiter__)
+* [__anext__](https://docs.python.org/3/reference/datamodel.html#object.__anext__)
+
+### async with
+From [documentation](https://docs.python.org/3/reference/compound_stmts.html#async-with): an asynchronous context manager is a context manager that is able to suspend execution in its enter and exit methods.
+
+The following code:
+```
+async with EXPR as VAR:
+    BLOCK
+```
+
+Is semantically equivalent to:
+```
+mgr = (EXPR)
+aexit = type(mgr).__aexit__
+aenter = type(mgr).__aenter__(mgr)
+
+VAR = await aenter
+try:
+    BLOCK
+except:
+    if not await aexit(mgr, *sys.exc_info()):
+        raise
+else:
+    await aexit(mgr, None, None, None)
+```
+
+See also:
+* [__aenter__](https://docs.python.org/3/reference/datamodel.html#object.__aenter__)
+* [__aexit__](https://docs.python.org/3/reference/datamodel.html#object.__aexit__)
+
 ### Summary
 If you are going to use coroutines, it is critically important to not mix programming paradigms together.
 
@@ -77,8 +140,22 @@ Do NOT write generator functions that try to do more than one of these at once
 
 [softwaredoug's asncio.md gist](https://gist.github.com/softwaredoug/86fa2abd60ed203b71de)
 
-1. Provides *event loop*
-    * An event loop basically says "when event A happens, react with function B"
+### Event Loop
+The event loop is the central execution device provided by asyncio. It provides multiple facilities, including:
+* Registering, executing and cancelling delayed calls (timeouts)
+* Creating client and server transports for various kinds of communication
+* Launching subprocesses and the associated transports for communication with an external program
+* Delegating costly function calls to a pool of threads
+
+#### Methods
+* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.run_forever
+* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.run_until_complete
+* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.is_running
+* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.stop
+* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.is_closed
+* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.close
+* https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.AbstractEventLoop.shutdown_asyncgens
+
 
 ### Future
 [asyncio.Future](https://docs.python.org/3/library/asyncio-task.html#asyncio.Future)
@@ -161,4 +238,5 @@ A selection of asyncio task functions, full list [here](https://docs.python.org/
 * [asyncio.wait_for](https://docs.python.org/3/library/asyncio-task.html#asyncio.wait_for)
 
 ## Resources
+[Python 3.6 Glossary](https://docs.python.org/3/glossary.html)
 [How the heck does async/await work in Python 3.5?](https://snarky.ca/how-the-heck-does-async-await-work-in-python-3-5/)
