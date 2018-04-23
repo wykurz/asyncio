@@ -22,10 +22,6 @@ Calling a coroutine does not start its code running - the coroutine object retur
 Coroutines (and tasks) can only run when the event loop is running.
 
 # asyncio
-[Python 3 – An Intro to asyncio](https://www.blog.pythonlibrary.org/2016/07/26/python-3-an-intro-to-asyncio/)
-
-[softwaredoug's asncio.md gist](https://gist.github.com/softwaredoug/86fa2abd60ed203b71de)
-
 ## Event Loop
 The event loop is the central execution device provided by asyncio. It provides multiple facilities, including:
 * Registering, executing and cancelling delayed calls (timeouts)
@@ -233,7 +229,7 @@ From [documentation](https://docs.python.org/3/library/asyncio-dev.html): to ena
 * Set the log level of the asyncio logger to `logging.DEBUG`. For example, call `logging.basicConfig(level=logging.DEBUG)` at startup
 * Configure the warnings module to display `ResourceWarning` warnings. For example, use the `-Wdefault` command line option of Python to display them
 
-Examples debug checks:
+Example debug checks:
 * Log coroutines defined but never "yielded from"
 * `call_soon()` and `call_at()` methods raise an exception if they are called from the wrong thread
 * Log the execution time of the selector
