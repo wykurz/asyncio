@@ -17,7 +17,7 @@ Things a coroutine can do:
 * `return expression` - produce a result to the coroutine that is waiting for this one using await or yield from
 * `raise exception` - raise an exception in the coroutine that is waiting for this one using await or yield from
 
-Calling a coroutine does not start its code running - the coroutine object returned by the call doesn't do anything until you schedule its execution. There are two basic ways to start it running: call await coroutine or yield from coroutine from another coroutine (assuming the other coroutine is already running!), or schedule its execution using the `ensure_future()` function or the `AbstractEventLoop.create_task()` method.
+Calling a coroutine does not start its code running - the coroutine object returned by the call doesn't do anything until you schedule its execution. There are two basic ways to start it running: call await coroutine or yield from coroutine from another coroutine (assuming the other coroutine is already running!), or schedule its execution using the `ensure_future()` function or the `AbstractEventLoop.create_task()` method. A nice discussion about differences between `ensure_future()` and `create_task()` [here](https://stackoverflow.com/questions/36342899/asyncio-ensure-future-vs-baseeventloop-create-task-vs-simple-coroutine).
 
 Coroutines (and tasks) can only run when the event loop is running.
 
